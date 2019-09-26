@@ -116,7 +116,9 @@ export default class HexagonGrid {
 
     getPosition(x, y) { // gets the row and column for the cannonballs
 
-        if(y > this.gridHeight) return { col: -100, row: -100 };
+        // if this position is requested, then it's game over
+        if(y >= this.gridHeight) return { col: 1, row: this.getLastIndex() };
+
         y = (y + this.gridHeight - this.yMovement) % this.gridHeight;
 
 

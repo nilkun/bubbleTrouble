@@ -84,17 +84,25 @@ class Bubbles {
         }
     }
 
-    update(elapsed, first = this.grid.getFirstIndex()) { 
-        // Check if game over
-        // Don't check for game over every update, and don't respawn every update
+    update(elapsed, first = this.grid.getFirstIndex(), gameOver = this.grid.getPosition(500, 835)) { 
+        // Don't respawn every update
         if(this.previousIndex !== first) {
             this.previousIndex = first;
             for(let x = 0; x < this.columns; x++) {
-                if(this.list[x][(this.rows + this.previousIndex - 1) % this.rows].isVisible) {
-                    this.ui.setState("transition");
-                    break;
-                }
+                // Redo! 
+                // if(this.list[x][(this.rows + this.previousIndex - 1) % this.rows].isVisible) {
+                //     this.ui.setState("transition");
+                //     break;
+                // }
                 this.list[x][this.previousIndex].new();
+            }
+        }
+
+        // Updated game over check
+        for(let column = 0; column < this.columns; column++) {
+            if(this.list[column][gameOver.row].isVisible) {
+                this.ui.setState("transition");
+                break;
             }
         }
 
@@ -185,19 +193,24 @@ class Bubbles {
                  }
             }
             
-        const newBall = this.list[this.cannonballs[index].col][this.cannonballs[index].row];
-        newBall.isVisible = true;
-        newBall.image = this.cannonballs[index].image;
+        if((this.cannonballs[index].y + 80 > 835)) this.ui.setState("transition");
+        
+        else {
+            const newBall = this.list[this.cannonballs[index].col][this.cannonballs[index].row];
+            newBall.isVisible = true;
+            newBall.image = this.cannonballs[index].image;
 
-        // RESET AND FILL
-        this.resetSearch();
-        this.floodFillnew(this.cannonballs[index].col, this.cannonballs[index].row, this.cannonballs[index].image);
-        if(this.connected >= 3) {
-            this.popQueue.forEach(pos => this.remove(pos.x, pos.y));
-            this.findFalling();  
-            this.ui.addPoints(Math.ceil(this.connected * this.connected));   
+            // RESET AND FILL
+            this.resetSearch();
+            this.floodFillnew(this.cannonballs[index].col, this.cannonballs[index].row, this.cannonballs[index].image);
+            if(this.connected >= 3) {
+                this.popQueue.forEach(pos => this.remove(pos.x, pos.y));
+                this.findFalling();  
+                this.ui.addPoints(Math.ceil(this.connected * this.connected));   
+            }
+            this.cannonballs[index].reset();             
         }
-        this.cannonballs[index].reset(); 
+
     }
 
     findFalling() {
